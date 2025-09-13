@@ -1,6 +1,6 @@
 const { Appwrite } = require('appwrite');
 
-export default async ({ req, res, log, error }) => {
+module.exports = async ({ req, res, log, error }) => {
   // 1. Pega o token enviado pelo site
   const tokenFornecido = req.body.token;
 
