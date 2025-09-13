@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validação de Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+            flex-direction: column;
+        }
+        .container {
+            background-color: #34495e;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #7f8c8d;
+            border-radius: 5px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-size: 1em;
+        }
+        button {
+            background-color: #1abc9c;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #16a085;
+        }
+        #statusMessage {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Acesso Restrito</h2>
+        <p>Por favor, insira o token para continuar.</p>
+        <input type="password" id="tokenInput" placeholder="Digite o token aqui" required>
+        <button id="accessButton">Acessar</button>
+        <p id="statusMessage"></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@20.0.0"></script>
+    <script type="module">
+        import { Client, Functions } from 'https://cdn.jsdelivr.net/npm/appwrite@20.0.0/dist/esm/sdk.js';
+
+        // Substitua com as suas credenciais do Appwrite
+        const client = new Client()
+            .setEndpoint('https://nyc.cloud.appwrite.io/v1')
+            .setProject('686a67d5003a1b4b1bf9');
+
+        const functions = new Functions(client);
+
+        const tokenInput = document.getElementById('tokenInput');
+        const accessButton = document.getElementById('accessButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Adiciona um "ouvinte" ao botão
+        accessButton.addEventListener('click', async () => {
+            const token = tokenInput.value;
+
+            if (!token) {
+                statusMessage.textContent = 'Por favor, digite o token.';
+                statusMessage.style.color = '#e74c3c';
+                return;
+            }
+            
+            statusMessage.textContent = 'Verificando token...';
+            statusMessage.style.color = '#f1c40f';
+
+            try {
+                const response = await functions.createExecution(
+                    '68c5be1b00315ff07f89',
+                    JSON.stringify({ token: token })
+                );
+
+                // ADICIONE ESTAS LINHAS PARA DEBUG:
+                console.log('Response completa:', response);
+                console.log('Response.body:', response.body);
+                console.log('Response.responseBody:', response.responseBody);
+
+                // Tente usar responseBody em vez de body:
+                const result = JSON.parse(response.responseBody || response.body || '{}');
+
+                if (result.success) {
+                    statusMessage.textContent = 'Token correto! Acesso liberado.';
+                    statusMessage.style.color = '#2ecc71';
+                } else {
+                    statusMessage.textContent = 'Token inválido. Tente novamente.';
+                    statusMessage.style.color = '#e74c3c';
+                }
+            } catch (error) {
+                console.error('Erro ao chamar a função:', error);
+                statusMessage.textContent = 'Erro de comunicação. Tente mais tarde.';
+                statusMessage.style.color = '#e74c3c';
+            }
+        });
+    </script>
+</body>
+</html>
