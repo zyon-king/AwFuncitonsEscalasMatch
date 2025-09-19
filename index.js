@@ -4,7 +4,6 @@
 // require() under the hood, so the code
 // needs to be compatible with it.
 
-Replace import with require():
 module.exports = async ({ req, res, log, error }) => {
   // 1. Pega o token enviado pelo site
   const tokenFornecido = req.body.token;
